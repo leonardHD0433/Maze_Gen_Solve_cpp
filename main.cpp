@@ -10,8 +10,11 @@ struct cell{
 
 int main(){
 
+
+    //building a maze should be in a func if possible
     int width=5;
     int height=4;
+    
     cell maze[height][width];
    
    //Set all values to 0
@@ -48,5 +51,16 @@ int main(){
      for (int i=0; i<width*2+1;i++){
         cout<<"‾";
     }
+
+
+    //maze tile movement
+    //init current tile
+    int currentHeight=0;
+    int currentWidth=0;
+    
+
+     
+
+
 
 }
