@@ -11,6 +11,8 @@
 *
 ***************************************************************************************/
 #include <chrono>
+#include <random>
+#include <algorithm>
 #include <iostream>
 using namespace std::chrono;
 using namespace std;
@@ -28,7 +30,13 @@ struct Hist {
     Hist* prev;
 };
 
-//Global variable for stack top
+// Structure to store values for move direction
+struct Random {
+    int heightVal=0;
+    int widthVal=0;
+};
+
+//Global variable for stack top and maze dimensions
 Hist* TOP = NULL;
 const int WIDTH = 7;
 const int HEIGHT = 7;
@@ -50,23 +58,23 @@ void createMaze(Cell maze[][7], int &currentHeight, int &currentWidth) {
     maze[currentHeight][currentWidth].ident = 2;
     maze[5][5].ident = 3;
 
-    // ** Test Maze 1 **
-    // maze[2][1].ident = 1;
-    // maze[2][3].ident = 1;
-    // maze[2][4].ident = 1;
-    // maze[4][2].ident = 1;
-    // maze[4][4].ident = 1;
-    // maze[4][5].ident = 1;
-    // maze[3][2].ident = 1;
-
-    // ** Test Maze 2 **
-    maze[2][2].ident = 1;
+    //** Test Maze 1 **
+    maze[2][1].ident = 1;
     maze[2][3].ident = 1;
     maze[2][4].ident = 1;
-    maze[3][2].ident = 1;
     maze[4][2].ident = 1;
     maze[4][4].ident = 1;
-    maze[5][4].ident = 1;
+    maze[4][5].ident = 1;
+    maze[3][2].ident = 1;
+
+    // // ** Test Maze 2 **
+    // maze[2][2].ident = 1;
+    // maze[2][3].ident = 1;
+    // maze[2][4].ident = 1;
+    // maze[3][2].ident = 1;
+    // maze[4][2].ident = 1;
+    // maze[4][4].ident = 1;
+    // maze[5][4].ident = 1;
 }
 
 // Function to push to the stack
@@ -77,6 +85,17 @@ void stackPush(int newHeight, int newWidth) {
     path->width = newWidth;
     path->prev = TOP;
     TOP = path;
+}
+
+// Function to count the number of elements in the stack
+int stackCount() {
+    int count = 0;
+    Hist* temp = TOP;
+    while(temp!=NULL) {
+        count++;
+        temp = temp->prev;
+    }
+    return count;
 }
 
 // Function to pop from the stack
@@ -102,23 +121,15 @@ void displayMaze(Cell maze[][7]) {
     for (int i = 0; i < HEIGHT; i++) {
         cout << "|";
         for (int j = 0; j < WIDTH; j++) {
-
-            // Displays maze according to the state of the tiles
-            if(maze[i][j].ident == 1) {cout << "X|";} // Blocked
-            else if(maze[i][j].ident == 2) {cout << "S|";} // Start
-            else if(maze[i][j].ident == 3) {cout << "E|";} // End
-            else if(maze[i][j].isvisited == true) {cout << "*|";} // Path
-            else {cout << " |";} //empty space
                 
-                
-            // switch (maze[i][j].ident) { 
-            //     // Displays maze according to the state of the tiles
-            //     case 1: cout << "X|"; break; // Blocked
-            //     case 2: cout << "S|"; break; // Start
-            //     case 3: cout << "E|"; break; // End
-            //     case 4: cout << "*|"; break; // Path
-            //     default: cout << " |"; break;
-            // }
+            switch (maze[i][j].ident) { 
+                // Displays maze according to the state of the tiles
+                case 1: cout << "X|"; break; // Blocked
+                case 2: cout << "S|"; break; // Start
+                case 3: cout << "E|"; break; // End
+                case 4: cout << "*|"; break; // Path
+                default: cout << " |"; break;// Empty
+            }
         }
         cout << endl;
     }
@@ -130,7 +141,7 @@ void displayMaze(Cell maze[][7]) {
 
 // Function to check if a move is valid
 bool isValidMove(Cell maze[][7], int newHeight, int newWidth) {
-    return newHeight >= 0 && newHeight < HEIGHT && newWidth >= 0 && newWidth < WIDTH && maze[newHeight][newWidth].ident != 1 && !maze[newHeight][newWidth].isvisited;
+    return newHeight >= 0 && newHeight < HEIGHT && newWidth >= 0 && newWidth < WIDTH && maze[newHeight][newWidth].ident != 1 && !maze[newHeight][newWidth].isvisited ;
 }
 
 // Function to solve the maze using DFS
@@ -145,17 +156,22 @@ bool solveMaze(Cell maze[][7], int currentHeight, int currentWidth) {
     if(currentHeight!=1||currentWidth!=1) {displayMaze(maze);} //display the maze after each forward move except the first move
     
 
-    // Possible moves: down, up, right, left
-    // It first goes down, then up, then right, then left
-    int moveHeight[] = {1, -1, 0, 0};
-    int moveWidth[] = {0, 0, 1, -1};
+    //Create a move direction array to shuffle the directions
+    Random moveDirection[4] = {{1,0},{-1,0},{0,1},{0,-1}};
+    shuffle(begin(moveDirection), end(moveDirection), mt19937{random_device{}()});
 
+    // Loop through the move directions
     for (int i = 0; i < 4; i++) {
-        int newHeight = currentHeight + moveHeight[i];
-        int newWidth = currentWidth + moveWidth[i];
+
+        int newHeight = currentHeight + moveDirection[i].heightVal;
+        int newWidth = currentWidth + moveDirection[i].widthVal;
 
         if (isValidMove(maze, newHeight, newWidth)) {
-            //displayMaze(maze);
+
+            // Mark the new cell to be shown as part of the path if it is not end or start
+            if(maze[newHeight][newWidth].ident != 2 && maze[newHeight][newWidth].ident != 3) {
+                maze[newHeight][newWidth].ident = 4; 
+            }
             stackPush(newHeight, newWidth);
             if (solveMaze(maze,newHeight, newWidth)) {
                 return true;
@@ -163,56 +179,95 @@ bool solveMaze(Cell maze[][7], int currentHeight, int currentWidth) {
             // Displays valid but failed attempts
              cout << "Failed Attempt: (" << newHeight << ", " << newWidth << ")" << endl;
              cout<< "Backtracking..."<<endl;    
+             maze[newHeight][newWidth].ident = 0;//reset the cell to exclude it from the path
              displayMaze(maze); //display the maze after backtracking
              stackPop();
         } 
     }
 
-    // Backtrack: unmark the current cell as visited
-    maze[currentHeight][currentWidth].isvisited = false;
     return false;
 }
 
 
 int main() {
-    int currentHeight = 1;
-    int currentWidth = 1;
 
-    Cell maze[HEIGHT][WIDTH];
+    // Variables to initialize and keep track of the current position in the maze
+    int currentHeight;
+    int currentWidth;
+    int shortestPath = 0;
 
-    // Initialize the maze and stack
-    createMaze(maze, currentHeight, currentWidth);
-
-    // Display the maze
-    displayMaze(maze);
+    // Variables to store the shortest path stack and maze layout
+    Hist* shortestStack;
+    Cell shortestMaze[HEIGHT][WIDTH];
+    
 
     // Start the timer
     auto start = high_resolution_clock::now();
 
-    // Solve the maze
-    if (solveMaze(maze, currentHeight, currentWidth)) {
-        cout << "\nMaze Solved!" << endl;
-        cout << "Path taken:" << endl;
-        while (TOP!=NULL) { // Display the path taken
-            
-            Hist* step = TOP;
-            cout << "(" << step->height << ", " << step->width << ")" << endl;
-            stackPop();
-        }
-    } else {
+    // Loop to run the algorithm 5 times to find shortest path
+    for(int i = 1; i < 6; i++) {
+
+        // Reset values to initial state, reset maze and stack
+        TOP = NULL;
+        currentHeight = 1;
+        currentWidth = 1;
+        Cell maze[HEIGHT][WIDTH];
+
+        // Initialize the maze and display it along with attempt number
+        createMaze(maze, currentHeight, currentWidth);
+
+        cout<<"_________________________________________________________________________________________"<<endl;
+        cout<<"Attempt: "<<i<<endl<<endl;
+
+        displayMaze(maze);
         
-        cout << "Maze has no Solution" << endl;
+        
+        // Solve the maze
+        if (solveMaze(maze, currentHeight, currentWidth)) {
+
+            // Check if the path taken is shorter than the shortest traversed path or if it is the first path
+            if (stackCount() < shortestPath||shortestPath==0) {
+
+                // Store the shortest path and shortest maze layout
+                shortestPath = stackCount();
+                shortestStack = TOP;
+                for (int i = 0; i < HEIGHT; i++) {
+                    for (int j = 0; j < WIDTH; j++) {
+                        shortestMaze[i][j] = maze[i][j];
+                    }
+                }
+            }
+
+        } else {
+            
+            // Display if maze has no solution and exit
+            cout << "Maze has no Solution" << endl;
+            return 0;
+        }
     }
 
-    // Stop the timer
-    auto stop = high_resolution_clock::now();
+    cout << "\nMaze Solved!" << endl;
+    cout << "Shortest path taken:" << endl<<endl;
+
+    //assign TOP to shortestStack to display the shortest path taken
+    TOP = shortestStack;
+    while (TOP!=NULL) { // Display the path taken
+
+        Hist* step = TOP;
+        cout << "(" << step->height << ", " << step->width << ")" << endl;
+        stackPop();
+    }
 
     // Display the maze with the solution path
-    displayMaze(maze);
+    displayMaze(shortestMaze);
+
+        
+    // Stop the timer
+    auto stop = high_resolution_clock::now();
 
     // Display the time taken to traverse the maze
     auto duration = duration_cast<microseconds>(stop - start);
     cout << "Time taken to traverse: " << duration.count() << " microseconds" << endl;
 
     return 0;
-}
+} 
