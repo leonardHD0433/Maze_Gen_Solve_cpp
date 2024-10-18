@@ -99,7 +99,7 @@ bool isValidMove(Cell maze[][7], int width, int height, int newHeight, int newWi
 // Function to solve the maze using DFS
 bool solveMaze(Cell maze[][7], int width, int height, int currentHeight, int currentWidth, stack<Hist> &history) {
     // If we reached the end
-    if (maze[currentHeight][currentWidth].ident == 3) {
+    if (maze[currentHeight][currentWidth].ident == 3) { // 1,1 false
         return true;
     }
 
