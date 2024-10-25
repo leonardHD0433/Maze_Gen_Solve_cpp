@@ -8,12 +8,13 @@ struct Cell {
     bool isvisited = false;
 };
 
-// Structure to store values for move direction
+// Structure to store values for move direction (same as struct Random)
 struct CellPtr {
     int heightVal=0;
     int widthVal=0;
 };
 
+// Function to prompt user for maze size
 void promptMazeSize(int &height, int &width) {
     cout << "Enter an odd value for the height of the maze : ";
     cin >> height;
@@ -27,6 +28,7 @@ void promptMazeSize(int &height, int &width) {
         width++;
 }
 
+// Function to create the maze
 void createMaze(Cell **maze, int height, int width) {
 
     // Block all cells
@@ -36,7 +38,7 @@ void createMaze(Cell **maze, int height, int width) {
         }
     }
 
-    // Set corner values to corner
+    // Set corner values to corner variable
     for (int i = 0; i < width; i++) {
         maze[0][i].ident = 5;
         maze[1][i].ident = 5;
@@ -52,22 +54,29 @@ void createMaze(Cell **maze, int height, int width) {
     }
 }
 
+// Function to pick a random cell to start the maze
 void pickRandomCell(Cell **maze, int height, int width, CellPtr frontier[]) {
     
     int i, j;
     while(true) {
         i = rand() % (height-2);
         j = rand() % (width-2);
+
+        // Check if the cell is a corner. If not, break the loop
         if(maze[i][j].ident != 5) 
             break;
         
     }
 
-    maze[i][j].ident = 0; // Mark the cell as a passage
+    // Mark the cell as a passage
+    maze[i][j].ident = 0; 
+
+    // Add the cell coordinates to the frontier
     frontier[0].heightVal = i;
     frontier[0].widthVal = j;
 }
 
+// Function to display the maze
 void displayMaze(Cell **maze, int height, int width) {
     for (int i = 0; i < width * 2 - 1; i++) {
         cout << "_";
@@ -79,8 +88,8 @@ void displayMaze(Cell **maze, int height, int width) {
             switch (maze[i][j].ident) {
                 case 1: cout << "\033[32mX\033[0m|"; break; // Blocked
                 case 2: cout << "\033[93mS\033[0m|"; break; // Start
-                case 3: cout << "E|"; break; // End
-                case 4: cout << "*|"; break; // Path
+                case 3: cout << "\033[93mE\033[0m|"; break; // End
+                case 4: cout << "\033[36m|*\033[0m|"; break; // Path
                 case 5: cout << "\033[90m#\033[0m|"; break; // Corner
                 default: cout << " |"; break; // Empty
             }
@@ -95,21 +104,26 @@ void displayMaze(Cell **maze, int height, int width) {
 
 void createPath(Cell **maze, CellPtr frontier[], int &frontierSize, int height, int width) {
 
-    bool nextIteration = true;
+    //variable to keep track of the number of times the path hits a corner, cell to hold the next cell to move to, and an array to hold the directions to move to.
     int pathHit = 0;
     CellPtr nextCell;
-    
-    while (pathHit < 300) {
+    CellPtr moveDirection[4] = {{2,0},{-2,0},{0,2},{0,-2}};
 
+    //Limit the times the path hits the corner to end program
+    while (pathHit < (2.5*height*width)) {
+
+        //Loop through the frontier array
         for (int i = 0; i < frontierSize; i++) {
             
-            CellPtr moveDirection[4] = {{2,0},{-2,0},{0,2},{0,-2}};
+            //get a random direction to move to by shuffling the moveDirection array
             shuffle(begin(moveDirection), end(moveDirection), mt19937{random_device{}()});
 
+            //move to the next cell
             nextCell = frontier[i];
             nextCell.heightVal += moveDirection[0].heightVal;
             nextCell.widthVal += moveDirection[0].widthVal;
 
+            //check if the next cell is a corner, a wall, or a path
             if (maze[nextCell.heightVal][nextCell.widthVal].ident == 5) {
                 pathHit++;
             }
@@ -120,9 +134,8 @@ void createPath(Cell **maze, CellPtr frontier[], int &frontierSize, int height, 
                 frontierSize++;
             }
         }
-
-
-    shuffle(frontier, frontier + frontierSize, mt19937{random_device{}()});
+        //shuffle the frontier array
+        shuffle(frontier, frontier + frontierSize, mt19937{random_device{}()});
     }
 }
 
@@ -147,18 +160,24 @@ int main() {
         maze[i] = new Cell[width];
     }
 
+    //create the maze 
     createMaze(maze, height, width);
-    displayMaze(maze, height, width);
 
-    srand(time(0)); // Seed the random number generator
+    // Seed the random number generator and pick starting cell
+    srand(time(0)); 
     pickRandomCell(maze, height, width, frontier);
     frontierSize++;
+
+    // Display the maze before creating the path
     displayMaze(maze, height, width);
 
+    // Create the path
     createPath(maze, frontier, frontierSize, height, width);
+
+    //generate the start and end points
     maze[frontier[0].heightVal][frontier[0].widthVal].ident = 2;
-     maze[frontier[1].heightVal][frontier[1].widthVal].ident = 3;
+    maze[frontier[1].heightVal][frontier[1].widthVal].ident = 3;
 
-
+    // Display the maze after creating the path
     displayMaze(maze, height, width);
 }
