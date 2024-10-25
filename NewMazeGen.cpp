@@ -15,9 +15,9 @@ struct CellPtr {
 };
 
 void promptMazeSize(int &height, int &width) {
-    cout << "Enter the height of the maze: ";
+    cout << "Enter an odd value for the height of the maze : ";
     cin >> height;
-    cout << "Enter the width of the maze: ";
+    cout << "Enter an odd value for the width of the maze : ";
     cin >> width;
 
     if(height % 2 == 0) 
@@ -123,9 +123,6 @@ void createPath(Cell **maze, CellPtr frontier[], int &frontierSize, int height, 
 
 
     shuffle(frontier, frontier + frontierSize, mt19937{random_device{}()});
-
-
-    
     }
 }
 
