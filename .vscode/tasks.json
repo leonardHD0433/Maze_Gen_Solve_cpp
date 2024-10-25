@@ -7,12 +7,14 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
+                "-I", "${workspaceFolder}/header", // Add the include directory
+                "${workspaceFolder}/src/maze_func.cpp", // Specify the additional source file
+                "${workspaceFolder}/src/BackTrack_test_new_func_2.cpp", // Specify the additional source file
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${workspaceFolder}/src/our_BackTrack_test_new_func_2.exe"
             ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
                 "$gcc"
