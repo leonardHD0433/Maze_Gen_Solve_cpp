@@ -221,12 +221,16 @@ void createPath(Cell **maze, CellPtr frontier[], int &frontierSize) {
         shuffle(frontier, frontier + frontierSize, mt19937{random_device{}()});
     }
 
-    // delete random blocked cells to connect the paths
+    // delete 2 random blocked cells per line to connect the paths
     for (int i = 1; i < HEIGHT-1; i++) {
+        pathHit = 0;
         for (int j = 1; j < WIDTH-1; j++) {
             if (maze[i][j].ident == 1 && rand() % 4 == 1) {
                 maze[i][j].ident = 0;
-                break;
+                pathHit++;
+                if (pathHit == 2) {
+                    break;
+                }
             }
         }
     }
