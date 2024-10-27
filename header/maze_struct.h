@@ -18,7 +18,7 @@ namespace maze_struct
     };
 
     // Structure to store values for move direction
-    struct Random {
+    struct CellPtr {
         int heightVal=0;
         int widthVal=0;
     };

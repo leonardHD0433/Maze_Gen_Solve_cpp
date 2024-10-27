@@ -1,3 +1,5 @@
+//THIS IS A BEAUTY
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
