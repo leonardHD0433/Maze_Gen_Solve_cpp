@@ -80,6 +80,7 @@ int main()
     // Display the maze after creating the path
     clearScreen();
     displayMaze(maze, HEIGHT, WIDTH);
+    delay(1000);
 
     // Start the timer
     auto start = high_resolution_clock::now();

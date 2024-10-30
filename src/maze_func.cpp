@@ -134,7 +134,7 @@ void showMazeGen(Cell **maze, int HEIGHT, int WIDTH)
 {
     clearScreen();
     displayMaze(maze, HEIGHT, WIDTH);
-    delay(1);
+    delay(500);
 }
 
 // Function to pick a random cell to start the maze (NEW)
@@ -284,7 +284,10 @@ bool solveMaze(Hist *&TOP, Cell **maze, int currentHeight, int currentWidth, int
             if(maze[newHeight][newWidth].ident != 2 && maze[newHeight][newWidth].ident != 3) 
             {
                 maze[newHeight][newWidth].ident = 4; 
-                betterMazeDisplay(maze, numAttempts, HEIGHT, WIDTH);
+                if(numAttempts < 4)
+                {
+                    betterMazeDisplay(maze, numAttempts, HEIGHT, WIDTH);
+                }
             }
 
             stackPush(TOP, newHeight, newWidth);
@@ -296,7 +299,10 @@ bool solveMaze(Hist *&TOP, Cell **maze, int currentHeight, int currentWidth, int
 
             // Displays valid but failed attempts  
             maze[newHeight][newWidth].ident = 0;//reset the cell to exclude it from the path
-            betterMazeDisplay(maze, newHeight, newWidth, numAttempts, HEIGHT, WIDTH); //display the maze after backtracking
+            if(numAttempts < 4)
+            {
+                betterMazeDisplay(maze, numAttempts, HEIGHT, WIDTH);  //display the maze after backtracking
+            }
             stackPop(TOP);
         } 
     }
