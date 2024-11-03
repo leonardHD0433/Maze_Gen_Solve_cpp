@@ -1,4 +1,14 @@
 //THIS IS A BEAUTY
+//Modified from python to C++ with the help of copilot
+/***************************************************************************************
+Reference 1
+*    Title: Maze Generation using Prim's Algorithm in Python
+*    Author: ArneStenkrona
+*    Date: 2019
+*    Code version: -
+*    Availability: https://github.com/ArneStenkrona/MazeFun
+
+***************************************************************************************/
 
 #include <iostream>
 #include <cstdlib>

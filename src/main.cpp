@@ -1,15 +1,31 @@
-// MAJOR FLAW: The algorithm only displays the FIRST PATH it finds, NOT THE SHORTEST PATH.
-// Proof at ** Test Maze 2 ** in createMaze function, algo took a 12 tile path instead of an 8 tile path.
 //Stack functions as a single linked list with a TOP variable to keep track of most recent added value.
 
 /***************************************************************************************
+Reference 1
 *    Title: Measure execution time of a function in C++ source code
 *    Author: Mahapatra S.
 *    Date: 2024
 *    Code version: -
 *    Availability: https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
-*
+
+Reference 2
+*    Title: How to declare a 2D array dynamically in C++ using new operator
+*    Author: shah
+*    Date: 2022
+*    Code version: -
+*    Availability: https://www.geeksforgeeks.org/how-to-declare-a-2d-array-dynamically-in-c-using-new-operator/
+
+Reference 3
+*    Title: Pass 2D array parameter to functions in C++
+*    Author: sulag
+*    Date: 2024
+*    Code version: -
+*    Availability: https://www.geeksforgeeks.org/pass-2d-array-parameter-to-functions-in-cpp/
+
+Reference 4
+*    Refer to MazeGenPrim's.cpp for the original code
 ***************************************************************************************/
+
 #include <iostream>
 #include <random>
 #include <algorithm>
